@@ -24,5 +24,18 @@
   "settings_close": "닫기",
   "settings_tooltip": "설정",
   "menu_back": "뒤로",
-  "menu_restart": "다시 시작"
+  "menu_restart": "다시 시작",
+  "home_continue": "이어하기 · {moves}번 · {time}",
+  "continue_title": "이어서 할까요?",
+  "continue_message": "진행 중인 게임이 있어요.",
+  "continue_resume": "이어하기",
+  "continue_new": "새 게임",
+  "records_title": "기록",
+  "records_button": "기록 보기",
+  "records_best_moves": "최소 이동",
+  "records_best_time": "최단 시간",
+  "records_clears": "{count}번 완성",
+  "records_top": "TOP 5",
+  "records_top_empty": "퍼즐을 완성하면 여기에 기록돼요.",
+  "records_empty": "아직 기록이 없어요.\n퍼즐을 완성해 보세요!"
 }

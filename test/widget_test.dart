@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:number_puzzle1/feedback_service.dart';
+import 'package:number_puzzle1/game_save.dart';
 import 'package:number_puzzle1/screen/number15_screen.dart';
 import 'package:number_puzzle1/screen/number24_screen.dart';
 import 'package:number_puzzle1/screen/number8_screen.dart';
@@ -111,6 +112,27 @@ void main() {
       await tester.pump(const Duration(milliseconds: 200));
     }
     expect(find.text('0'), findsNothing, reason: '타일을 탭해도 이동하지 않음');
+
+    // 이어하기: 이동하면 진행 상황이 저장되고, 저장된 게임으로 열면 그대로 이어짐
+    final saved = await tester.runAsync(
+      () => GameSaveStore.load(Number8Screen.puzzleType, 9),
+    );
+    expect(saved, isNotNull, reason: '이동 후 진행 상황이 저장되지 않음');
+    expect(saved!.moves, greaterThan(0));
+    home.value = Number8Screen(
+      key: UniqueKey(),
+      showAd: false,
+      savedGame: saved,
+    );
+    await tester.pump();
+    expect(find.text('${saved.moves}'), findsWidgets);
+    final minutes = (saved.seconds ~/ 60).toString().padLeft(2, '0');
+    final seconds = (saved.seconds % 60).toString().padLeft(2, '0');
+    expect(find.text('$minutes:$seconds'), findsOneWidget);
+    // 보드 배치도 저장된 그대로: 빈칸 위치의 타일만 없어야 함
+    for (var i = 1; i <= 8; i++) {
+      expect(find.text('$i'), findsWidgets);
+    }
 
     // 설정 창: 게임 화면의 설정 버튼으로 열고, 스위치를 끄면 저장되어야 함
     final feedback = FeedbackService.instance;

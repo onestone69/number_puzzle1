@@ -24,5 +24,18 @@
   "settings_close": "Close",
   "settings_tooltip": "Settings",
   "menu_back": "Back",
-  "menu_restart": "Restart"
+  "menu_restart": "Restart",
+  "home_continue": "Continue · {moves} moves · {time}",
+  "continue_title": "Continue?",
+  "continue_message": "You have a game in progress.",
+  "continue_resume": "Continue",
+  "continue_new": "New Game",
+  "records_title": "Records",
+  "records_button": "Records",
+  "records_best_moves": "Fewest Moves",
+  "records_best_time": "Fastest Time",
+  "records_clears": "Completed {count} times",
+  "records_top": "Top 5",
+  "records_top_empty": "Complete a puzzle to add a record here.",
+  "records_empty": "No records yet.\nComplete a puzzle to set one!"
 }
