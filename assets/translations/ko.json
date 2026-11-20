@@ -1,0 +1,20 @@
+{
+  "app_title": "슬라이딩 퍼즐",
+  "main_puzzle_3": "3 x 3 퍼즐",
+  "main_puzzle_4": "4 x 4 퍼즐",
+  "main_puzzle_5": "5 x 5 퍼즐",
+  "puzzle_title": "숫자 퍼즐",
+  "puzzle_best_record": "최고기록: {moves}회 / {time}",
+  "puzzle_moves": "이동횟수",
+  "puzzle_time": "시간",
+  "puzzle_loading_ad": "광고 로드 중...",
+  "completion_title": "퍼즐 완성!",
+  "completion_congratulations": "축하합니다! 퍼즐을 완성했습니다!",
+  "completion_moves": "이동횟수: {count}회",
+  "completion_time": "소요시간: {time}",
+  "completion_new_record": "🎉 새로운 기록을 달성했습니다! 🎉",
+  "completion_best_moves": "최소 이동 횟수: {count}회",
+  "completion_best_time": "최단 소요 시간: {time}",
+  "completion_restart": "다시 시작",
+  "completion_ok": "확인"
+}

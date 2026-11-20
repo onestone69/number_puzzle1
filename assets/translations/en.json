@@ -1,0 +1,20 @@
+{
+  "app_title": "Sliding Puzzle",
+  "home_puzzle_3": "3x3 Puzzle",
+  "home_puzzle_4": "4x4 Puzzle",
+  "home_puzzle_5": "5x5 Puzzle",
+  "puzzle_title": "Number Puzzle",
+  "puzzle_best_record": "Best Record: {moves} moves / {time}",
+  "puzzle_moves": "moves",
+  "puzzle_time": "time",
+  "puzzle_loading_ad": "Loading Ad...",
+  "completion_title": "Puzzle Completed!",
+  "completion_congratulations": "Congratulations! You completed the puzzle!",
+  "completion_moves": "Moves: {count}",
+  "completion_time": "Time: {time}",
+  "completion_new_record": "🎉 You achieved a new record! 🎉",
+  "completion_best_moves": "Best Moves: {count}",
+  "completion_best_time": "Best Time: {time}",
+  "completion_restart": "Restart",
+  "completion_ok": "OK"
+}

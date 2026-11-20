@@ -1,0 +1,45 @@
+name: number_puzzle1
+description: "Sliding Number Puzzle"
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.7.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^2.0.0
+  easy_localization: ^3.0.7+1
+  shared_preferences: ^2.2.3
+  google_mobile_ads: ^9.2.0
+  material_ui: ^1.11.1
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: "AppIcon"
+  image_path_ios: "assets/image/np1_app_icon.png"
+  image_path_android: "assets/image/np1_app_icon.png"
+
+flutter:
+
+  uses-material-design: true
+  assets:
+    - assets/
+    - assets/icon/
+    - assets/image/
+    - assets/translations/
+    - assets/i18n/
+  
+  fonts:
+    - family: HiMelody
+      fonts:
+        - asset: assets/fonts/HiMelody-Regular.ttf
