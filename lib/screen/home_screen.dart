@@ -208,10 +208,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _appOpenAdManager.loadAd();
-    Future.delayed(Duration(seconds: 3), () {
-      _appOpenAdManager.showAdIfAvailable();
-    });
+    // 앱 열기 광고는 노출 규칙(AdPolicy)을 만족할 때만 표시됨
+    _appOpenAdManager.onColdStart();
   }
 
   @override
@@ -222,8 +220,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      _appOpenAdManager.showAdIfAvailable();
+    switch (state) {
+      case AppLifecycleState.paused:
+        _appOpenAdManager.onPaused();
+      case AppLifecycleState.resumed:
+        _appOpenAdManager.onResumed();
+      default:
+        break;
     }
   }
 }

@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:material_ui/material_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/services.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:number_puzzle1/ad_policy.dart';
 import 'package:number_puzzle1/feedback_service.dart';
 import 'package:number_puzzle1/screen/home_screen.dart';
 
@@ -15,8 +18,11 @@ void main() async {
   // 효과음·진동 설정 불러오기 (효과음 파일은 백그라운드에서 로드)
   await FeedbackService.instance.init();
 
-  //AdMob 초기화
-  await MobileAds.instance.initialize();
+  // 실행 횟수 기록 (광고 노출 빈도 조절에 사용)
+  await AdPolicy.instance.recordLaunch();
+
+  // AdMob 초기화: 앱 시작을 늦추지 않도록 기다리지 않음
+  unawaited(MobileAds.instance.initialize());
 
   runApp(
     EasyLocalization(

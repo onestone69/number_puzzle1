@@ -1,7 +1,13 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:number_puzzle1/ad_ids.dart';
+import 'package:number_puzzle1/ad_policy.dart';
 
+/// 게임 화면 하단 배너.
+///
+/// 첫 실행에는 표시하지 않고([AdPolicy.bannersEnabled]),
+/// 로드되는 동안에는 화면이 흔들리지 않도록 빈 공간만 잡아 두며,
+/// 로드에 실패하면 영역 자체를 접는다.
 class AdBannerWidget extends StatefulWidget {
   const AdBannerWidget({super.key});
 
@@ -12,13 +18,15 @@ class AdBannerWidget extends StatefulWidget {
 class _AdBannerWidgetState extends State<AdBannerWidget> {
   BannerAd? _bannerAd;
   bool _isLoaded = false;
+  bool _failed = false;
+  late final bool _enabled = AdPolicy.instance.bannersEnabled;
 
   final String _adUnitId = AdIds.banner;
 
   @override
   void initState() {
     super.initState();
-    _loadAd();
+    if (_enabled) _loadAd();
   }
 
   @override
@@ -41,7 +49,12 @@ class _AdBannerWidgetState extends State<AdBannerWidget> {
         },
         onAdFailedToLoad: (ad, error) {
           ad.dispose();
+          _bannerAd = null;
           debugPrint('광고 로드 실패: ${error.message}');
+          if (!mounted) return;
+          setState(() {
+            _failed = true;
+          });
         },
       ),
     );
@@ -51,18 +64,20 @@ class _AdBannerWidgetState extends State<AdBannerWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 50,
-      color: Colors.grey[200],
+    if (!_enabled || _failed) return const SizedBox.shrink();
+    final ad = _bannerAd;
+    return SizedBox(
+      height: AdSize.banner.height.toDouble(),
+      width: double.infinity,
       child:
-          _isLoaded
-              ? AdWidget(ad: _bannerAd!)
-              : const Center(
-                child: Text(
-                  'AdMob 배너 로드 중...',
-                  style: TextStyle(fontFamily: 'HiMelody', color: Colors.grey),
+          _isLoaded && ad != null
+              ? Center(
+                child: SizedBox(
+                  width: AdSize.banner.width.toDouble(),
+                  child: AdWidget(ad: ad),
                 ),
-              ),
+              )
+              : null,
     );
   }
 }
