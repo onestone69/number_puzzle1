@@ -37,5 +37,13 @@
   "records_clears": "Completed {count} times",
   "records_top": "Top 5",
   "records_top_empty": "Complete a puzzle to add a record here.",
-  "records_empty": "No records yet.\nComplete a puzzle to set one!"
+  "records_empty": "No records yet.\nComplete a puzzle to set one!",
+  "completion_new_record_short": "New Record!",
+  "completion_rank": "#{rank} in Top 5",
+  "completion_not_ranked": "Keep going to reach the Top 5!",
+  "completion_best": "Best {value}",
+  "completion_new": "NEW",
+  "completion_close": "Close",
+  "completion_play_again": "Play Again",
+  "completion_records": "Records"
 }

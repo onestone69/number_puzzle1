@@ -37,5 +37,13 @@
   "records_clears": "{count}번 완성",
   "records_top": "TOP 5",
   "records_top_empty": "퍼즐을 완성하면 여기에 기록돼요.",
-  "records_empty": "아직 기록이 없어요.\n퍼즐을 완성해 보세요!"
+  "records_empty": "아직 기록이 없어요.\n퍼즐을 완성해 보세요!",
+  "completion_new_record_short": "신기록!",
+  "completion_rank": "TOP 5 중 {rank}위",
+  "completion_not_ranked": "TOP 5에 도전해 보세요!",
+  "completion_best": "최고 {value}",
+  "completion_new": "NEW",
+  "completion_close": "닫기",
+  "completion_play_again": "다시 하기",
+  "completion_records": "기록 보기"
 }

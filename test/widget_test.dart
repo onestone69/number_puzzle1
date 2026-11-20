@@ -157,6 +157,41 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Sound Effects'), findsNothing);
 
+    // 완성 축하 창: 한 칸만 밀면 완성되는 게임에서 마지막 타일을 밀면
+    // 신기록·TOP 5 순위와 함께 축하 창이 떠야 함
+    home.value = Number8Screen(
+      key: UniqueKey(),
+      showAd: false,
+      savedGame: const SavedGame(
+        tiles: [1, 2, 3, 4, 5, 6, 7, 0, 8],
+        moves: 5,
+        seconds: 10,
+      ),
+    );
+    await tester.pump();
+    await tester.tap(find.text('8'));
+    await waitFor(find.text('Puzzle Completed!'));
+    await tester.pumpAndSettle();
+    expect(find.text('Puzzle Completed!'), findsOneWidget);
+    expect(find.text('New Record!'), findsOneWidget);
+    expect(find.text('#1 in Top 5'), findsOneWidget);
+    expect(find.text('NEW'), findsNWidgets(2)); // 이동·시간 모두 신기록
+    expect(find.text('6'), findsWidgets); // 이번 이동 횟수
+    expect(tester.takeException(), isNull);
+    // 완성했으므로 이어하기 저장은 지워짐
+    expect(
+      await tester.runAsync(
+        () => GameSaveStore.load(Number8Screen.puzzleType, 9),
+      ),
+      isNull,
+    );
+
+    // 다시 하기 → 창이 닫히고 새 게임(0번 이동)
+    await tester.tap(find.text('Play Again'));
+    await tester.pumpAndSettle();
+    expect(find.text('Puzzle Completed!'), findsNothing);
+    expect(find.text('0'), findsOneWidget);
+
     // 화면을 떠나며 타이머 정리
     home.value = const SizedBox();
     await tester.pump();

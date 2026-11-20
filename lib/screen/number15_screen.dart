@@ -9,6 +9,8 @@ import '../app_color.dart';
 import '../feedback_service.dart';
 import '../game_save.dart';
 import '../records_store.dart';
+import 'records_screen.dart';
+import '../widgets/completion_dialog.dart';
 import '../widgets/game_ui_3d.dart';
 import '../widgets/puzzle_board_3d.dart';
 import '../widgets/settings_dialog.dart';
@@ -85,7 +87,7 @@ class _Number15ScreenState extends State<Number15Screen>
   }
 
   // 최고 기록 저장
-  Future<bool> saveBestScores(int moves, int time) async {
+  Future<RecordResult> saveBestScores(int moves, int time) async {
     // 최소 이동·최단 시간·완성 횟수·TOP 5 기록 갱신
     final result = await RecordsStore.addResult(
       puzzleType,
@@ -94,7 +96,7 @@ class _Number15ScreenState extends State<Number15Screen>
     );
     bestMoveCount = result.records.bestMoves;
     bestTime = result.records.bestTime;
-    return result.isNewRecord;
+    return result;
   }
 
   // 타이머 시작 함수
@@ -241,65 +243,30 @@ class _Number15ScreenState extends State<Number15Screen>
       FeedbackService.instance.win();
       GameSaveStore.clear(puzzleType); // 완성했으므로 이어하기 삭제
 
-      saveBestScores(moveCount, elapsedSeconds).then((isNewRecord) {
+      saveBestScores(moveCount, elapsedSeconds).then((result) async {
         if (!mounted) return;
-        String message =
-            "${'completion_congratulations'.tr()}\n${'completion_moves'.tr(namedArgs: {'count': moveCount.toString()})}\n${'completion_time'.tr(namedArgs: {'time': formatTime(elapsedSeconds)})}\n\n";
-
-        if (isNewRecord) {
-          message += "${'completion_new_record'.tr()}\n";
-        }
-
-        if (bestMoveCount != null) {
-          message +=
-              "${'completion_best_moves'.tr(namedArgs: {'count': bestMoveCount.toString()})}\n";
-        }
-        if (bestTime != null) {
-          message += 'completion_best_time'.tr(
-            namedArgs: {'time': formatTime(bestTime!)},
-          );
-        }
-
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder:
-              (context) => AlertDialog(
-                title: Text(
-                  'completion_title'.tr(),
-                  style: TextStyle(
-                    fontFamily: 'HiMelody',
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                content: Text(
-                  message,
-                  style: TextStyle(fontFamily: 'HiMelody', fontSize: 24),
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      resetPuzzle();
-                    },
-                    child: Text(
-                      'completion_restart'.tr(),
-                      style: TextStyle(fontSize: 26),
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Text(
-                      'completion_ok'.tr(),
-                      style: TextStyle(fontSize: 26),
-                    ),
-                  ),
-                ],
-              ),
+        setState(() {}); // 상단 최고 기록 갱신
+        final action = await showCompletionDialog(
+          context,
+          color: AppColor.puzzle15MenuBackground,
+          moves: moveCount,
+          seconds: elapsedSeconds,
+          result: result,
         );
+        if (!mounted) return;
+        switch (action) {
+          case CompletionAction.playAgain:
+            resetPuzzle();
+          case CompletionAction.records:
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const RecordsScreen(initialIndex: 1),
+              ),
+            );
+          case CompletionAction.close:
+            break;
+        }
       });
     }
   }
