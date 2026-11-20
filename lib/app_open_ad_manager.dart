@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:number_puzzle1/ad_ids.dart';
 
 class AppOpenAdManager {
   static final AppOpenAdManager _instance = AppOpenAdManager._internal();
@@ -10,7 +11,7 @@ class AppOpenAdManager {
   bool _isAdAvailable = false;
   bool _isShowingAd = false;
 
-  final String adUnitId = "ca-app-pub-3270520208232118/3407195293"; // 테스트 광고 ID
+  final String adUnitId = AdIds.appOpen;
 
   /// 앱 열기 광고 로드
   void loadAd() {

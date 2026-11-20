@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:number_puzzle1/ad_ids.dart';
 
 class AdBannerWidget extends StatefulWidget {
   const AdBannerWidget({super.key});
@@ -12,8 +13,7 @@ class _AdBannerWidgetState extends State<AdBannerWidget> {
   BannerAd? _bannerAd;
   bool _isLoaded = false;
 
-  // 테스트 광고 ID (실제 앱 배포 시 실제 광고 ID로 교체)
-  final String _adUnitId = 'ca-app-pub-3270520208232118/9254919355';
+  final String _adUnitId = AdIds.banner;
 
   @override
   void initState() {
