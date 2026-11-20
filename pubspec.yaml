@@ -27,8 +27,13 @@ dev_dependencies:
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: "AppIcon"
-  image_path_ios: "assets/image/np1_app_icon.png"
-  image_path_android: "assets/image/np1_app_icon.png"
+  # 앱의 입체 보드 위젯으로 렌더링한 아이콘 (tool/render_app_icon_test.dart로 다시 생성 가능)
+  image_path: "assets/icon/app_icon.png"
+  remove_alpha_ios: true
+  adaptive_icon_background: "assets/icon/icon_background.png"
+  adaptive_icon_foreground: "assets/icon/icon_foreground.png"
+  # 앞면 이미지에 이미 안전 여백이 있으므로 추가 여백 없음
+  adaptive_icon_foreground_inset: 0
 
 flutter:
 
