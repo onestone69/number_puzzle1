@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/services.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:number_puzzle1/feedback_service.dart';
 import 'package:number_puzzle1/screen/home_screen.dart';
 
 void main() async {
@@ -10,6 +11,9 @@ void main() async {
   // 세로 화면 전용 레이아웃이므로 세로 모드로 고정
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   await EasyLocalization.ensureInitialized();
+
+  // 효과음·진동 설정 불러오기 (효과음 파일은 백그라운드에서 로드)
+  await FeedbackService.instance.init();
 
   //AdMob 초기화
   await MobileAds.instance.initialize();

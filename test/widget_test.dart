@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:number_puzzle1/feedback_service.dart';
 import 'package:number_puzzle1/screen/number15_screen.dart';
 import 'package:number_puzzle1/screen/number24_screen.dart';
 import 'package:number_puzzle1/screen/number8_screen.dart';
@@ -110,6 +111,29 @@ void main() {
       await tester.pump(const Duration(milliseconds: 200));
     }
     expect(find.text('0'), findsNothing, reason: '타일을 탭해도 이동하지 않음');
+
+    // 설정 창: 게임 화면의 설정 버튼으로 열고, 스위치를 끄면 저장되어야 함
+    final feedback = FeedbackService.instance;
+    expect(feedback.soundEnabled, isTrue);
+    expect(feedback.hapticsEnabled, isTrue);
+    await tester.tap(find.byTooltip('Settings'));
+    await tester.pumpAndSettle();
+    expect(find.text('Sound Effects'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+
+    await tester.tap(find.byKey(const ValueKey('sound_switch')));
+    await tester.tap(find.byKey(const ValueKey('haptics_switch')));
+    await tester.pumpAndSettle();
+    expect(feedback.soundEnabled, isFalse);
+    expect(feedback.hapticsEnabled, isFalse);
+    final prefs = await tester.runAsync(SharedPreferences.getInstance);
+    expect(prefs!.getBool('settings_sound'), isFalse);
+    expect(prefs.getBool('settings_haptics'), isFalse);
+
+    // 닫기 버튼으로 창이 닫혀야 함
+    await tester.tap(find.text('Close'));
+    await tester.pumpAndSettle();
+    expect(find.text('Sound Effects'), findsNothing);
 
     // 화면을 떠나며 타이머 정리
     home.value = const SizedBox();

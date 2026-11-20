@@ -6,8 +6,10 @@ import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../app_color.dart';
+import '../feedback_service.dart';
 import '../widgets/game_ui_3d.dart';
 import '../widgets/puzzle_board_3d.dart';
+import '../widgets/settings_dialog.dart';
 
 class Number15Screen extends StatefulWidget {
   const Number15Screen({super.key, this.showAd = true});
@@ -34,6 +36,7 @@ class _Number15ScreenState extends State<Number15Screen> {
   int? bestMoveCount;
   int? bestTime;
   bool isCompleted = false;
+  bool isPaused = false; // 설정 창이 열려 있는 동안 타이머 정지
 
   // SharedPreferences 키
   static const String puzzleType = 'puzzle_15'; // 15 퍼즐 구분
@@ -90,7 +93,7 @@ class _Number15ScreenState extends State<Number15Screen> {
   // 타이머 시작 함수
   void startTimer() {
     timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      if (!isCompleted) {
+      if (!isCompleted && !isPaused) {
         setState(() {
           elapsedSeconds++;
         });
@@ -188,6 +191,7 @@ class _Number15ScreenState extends State<Number15Screen> {
     if (isComplete && tiles[15] == 0) {
       isCompleted = true;
       timer.cancel();
+      FeedbackService.instance.win();
 
       saveBestScores(moveCount, elapsedSeconds).then((isNewRecord) {
         if (!mounted) return;
@@ -252,6 +256,13 @@ class _Number15ScreenState extends State<Number15Screen> {
     }
   }
 
+  // 설정 창 열기 (열려 있는 동안 타이머 정지)
+  Future<void> openSettings() async {
+    setState(() => isPaused = true);
+    await showSettingsDialog(context, color: AppColor.puzzle15MenuBackground);
+    if (mounted) setState(() => isPaused = false);
+  }
+
   String formatTime(int seconds) {
     int minutes = seconds ~/ 60;
     int remainingSeconds = seconds % 60;
@@ -310,7 +321,10 @@ class _Number15ScreenState extends State<Number15Screen> {
                             onTileTap: (index) {
                               // 빈 공간 주변의 타일만 이동 가능
                               if (getValidMoves().contains(index)) {
+                                FeedbackService.instance.move();
                                 swapTiles(index);
+                              } else {
+                                FeedbackService.instance.invalid();
                               }
                             },
                           ),
@@ -336,15 +350,21 @@ class _Number15ScreenState extends State<Number15Screen> {
               children: [
                 Button3D(
                   icon: Icons.arrow_back,
-                  tooltip: 'Back',
+                  tooltip: 'menu_back'.tr(),
                   color: shadeColor(AppColor.puzzle15MenuBackground, 0.12),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
                 Button3D(
                   icon: Icons.refresh,
-                  tooltip: 'Restart',
+                  tooltip: 'menu_restart'.tr(),
                   color: shadeColor(AppColor.puzzle15MenuBackground, 0.12),
                   onPressed: resetPuzzle,
+                ),
+                Button3D(
+                  icon: Icons.settings,
+                  tooltip: 'settings_tooltip'.tr(),
+                  color: shadeColor(AppColor.puzzle15MenuBackground, 0.12),
+                  onPressed: openSettings,
                 ),
               ],
             ),

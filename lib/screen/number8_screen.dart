@@ -6,8 +6,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 import '../app_color.dart';
+import '../feedback_service.dart';
 import '../widgets/game_ui_3d.dart';
 import '../widgets/puzzle_board_3d.dart';
+import '../widgets/settings_dialog.dart';
 
 class Number8Screen extends StatefulWidget {
   const Number8Screen({super.key, this.showAd = true});
@@ -34,6 +36,7 @@ class _Number8ScreenState extends State<Number8Screen> {
   int? bestMoveCount;
   int? bestTime;
   bool isCompleted = false;
+  bool isPaused = false; // 설정 창이 열려 있는 동안 타이머 정지
 
   // SharedPreferences 키
   static const String puzzleType = 'puzzle_8'; // 8/15/24 퍼즐 구분
@@ -89,7 +92,7 @@ class _Number8ScreenState extends State<Number8Screen> {
   // 타이머 시작 함수
   void startTimer() {
     timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      if (!isCompleted) {
+      if (!isCompleted && !isPaused) {
         setState(() {
           elapsedSeconds++;
         });
@@ -192,6 +195,7 @@ class _Number8ScreenState extends State<Number8Screen> {
     if (isComplete && tiles[8] == 0) {
       isCompleted = true;
       timer.cancel();
+      FeedbackService.instance.win();
 
       saveBestScores(moveCount, elapsedSeconds).then((isNewRecord) {
         if (!mounted) return;
@@ -256,6 +260,13 @@ class _Number8ScreenState extends State<Number8Screen> {
     }
   }
 
+  // 설정 창 열기 (열려 있는 동안 타이머 정지)
+  Future<void> openSettings() async {
+    setState(() => isPaused = true);
+    await showSettingsDialog(context, color: AppColor.puzzle8MenuBackground);
+    if (mounted) setState(() => isPaused = false);
+  }
+
   // 시간을 분:초 형식으로 변환하는 함수
   String formatTime(int seconds) {
     int minutes = seconds ~/ 60;
@@ -318,7 +329,10 @@ class _Number8ScreenState extends State<Number8Screen> {
                             onTileTap: (index) {
                               // 빈 공간 주변의 타일만 이동 가능
                               if (getValidMoves().contains(index)) {
+                                FeedbackService.instance.move();
                                 swapTiles(index);
+                              } else {
+                                FeedbackService.instance.invalid();
                               }
                             },
                           ),
@@ -345,15 +359,21 @@ class _Number8ScreenState extends State<Number8Screen> {
               children: [
                 Button3D(
                   icon: Icons.arrow_back,
-                  tooltip: 'Back',
+                  tooltip: 'menu_back'.tr(),
                   color: shadeColor(AppColor.puzzle8MenuBackground, 0.12),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
                 Button3D(
                   icon: Icons.refresh,
-                  tooltip: 'Restart',
+                  tooltip: 'menu_restart'.tr(),
                   color: shadeColor(AppColor.puzzle8MenuBackground, 0.12),
                   onPressed: resetPuzzle,
+                ),
+                Button3D(
+                  icon: Icons.settings,
+                  tooltip: 'settings_tooltip'.tr(),
+                  color: shadeColor(AppColor.puzzle8MenuBackground, 0.12),
+                  onPressed: openSettings,
                 ),
               ],
             ),

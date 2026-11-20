@@ -7,6 +7,7 @@ import 'package:number_puzzle1/screen/number24_screen.dart';
 
 import '../app_color.dart';
 import '../widgets/game_ui_3d.dart';
+import '../widgets/settings_dialog.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -36,81 +37,128 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           ),
         ),
         child: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // 제목 (아래로 겹친 그림자로 두께가 있는 입체 글자)
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      'app_title'.tr(),
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontFamily: 'HiMelody',
-                        fontSize: 52,
-                        fontWeight: FontWeight.bold,
-                        color: _titleColor,
-                        shadows: [
-                          const Shadow(
-                            color: Colors.white,
-                            offset: Offset(0, -1.5),
-                          ),
-                          for (var i = 1; i <= 5; i++)
-                            Shadow(
-                              color: shadeColor(_titleColor, -0.25 - i * 0.04),
-                              offset: Offset(0, i.toDouble()),
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: Center(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 24,
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // 제목 (아래로 겹친 그림자로 두께가 있는 입체 글자)
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            'app_title'.tr(),
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: 'HiMelody',
+                              fontSize: 52,
+                              fontWeight: FontWeight.bold,
+                              color: _titleColor,
+                              shadows: [
+                                const Shadow(
+                                  color: Colors.white,
+                                  offset: Offset(0, -1.5),
+                                ),
+                                for (var i = 1; i <= 5; i++)
+                                  Shadow(
+                                    color: shadeColor(
+                                      _titleColor,
+                                      -0.25 - i * 0.04,
+                                    ),
+                                    offset: Offset(0, i.toDouble()),
+                                  ),
+                                Shadow(
+                                  color: Colors.black.withValues(alpha: 0.25),
+                                  offset: const Offset(0, 8),
+                                  blurRadius: 8,
+                                ),
+                              ],
                             ),
-                          Shadow(
-                            color: Colors.black.withValues(alpha: 0.25),
-                            offset: const Offset(0, 8),
-                            blurRadius: 8,
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 56),
+                        ),
+                        const SizedBox(height: 56),
 
-                  // 3x3 퍼즐 버튼
-                  _buildPuzzleButton(
-                    'home_puzzle_3'.tr(),
-                    Icons.grid_3x3,
-                    AppColor.puzzle8MenuBackground,
-                    () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => Number8Screen()),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
+                        // 3x3 퍼즐 버튼
+                        _buildPuzzleButton(
+                          'home_puzzle_3'.tr(),
+                          Icons.grid_3x3,
+                          AppColor.puzzle8MenuBackground,
+                          () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Number8Screen(),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
 
-                  // 4x4 퍼즐 버튼
-                  _buildPuzzleButton(
-                    'home_puzzle_4'.tr(),
-                    Icons.grid_4x4,
-                    AppColor.puzzle15MenuBackground,
-                    () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => Number15Screen()),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
+                        // 4x4 퍼즐 버튼
+                        _buildPuzzleButton(
+                          'home_puzzle_4'.tr(),
+                          Icons.grid_4x4,
+                          AppColor.puzzle15MenuBackground,
+                          () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Number15Screen(),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
 
-                  // 5x5 퍼즐 버튼
-                  _buildPuzzleButton(
-                    'home_puzzle_5'.tr(),
-                    Icons.grid_on,
-                    AppColor.puzzle24MenuBackground,
-                    () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => Number24Screen()),
+                        // 5x5 퍼즐 버튼
+                        _buildPuzzleButton(
+                          'home_puzzle_5'.tr(),
+                          Icons.grid_on,
+                          AppColor.puzzle24MenuBackground,
+                          () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Number24Screen(),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
+                ),
               ),
-            ),
+              // 설정 버튼
+              Positioned(
+                top: 8,
+                right: 12,
+                child: Pressable3D(
+                  color: shadeColor(_titleColor, 0.25),
+                  width: 56,
+                  height: 50,
+                  radius: 16,
+                  semanticLabel: 'settings_tooltip'.tr(),
+                  onPressed:
+                      () => showSettingsDialog(
+                        context,
+                        color: shadeColor(_titleColor, 0.1),
+                      ),
+                  child: Icon(
+                    Icons.settings,
+                    size: 28,
+                    color: Colors.white,
+                    shadows: [
+                      Shadow(
+                        color: shadeColor(_titleColor, -0.5),
+                        offset: const Offset(0, 1.5),
+                        blurRadius: 1.5,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),

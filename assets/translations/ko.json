@@ -16,5 +16,13 @@
   "completion_best_moves": "최소 이동 횟수: {count}회",
   "completion_best_time": "최단 소요 시간: {time}",
   "completion_restart": "다시 시작",
-  "completion_ok": "확인"
+  "completion_ok": "확인",
+  "settings_title": "설정",
+  "settings_sound": "효과음",
+  "settings_volume": "음량",
+  "settings_haptics": "진동",
+  "settings_close": "닫기",
+  "settings_tooltip": "설정",
+  "menu_back": "뒤로",
+  "menu_restart": "다시 시작"
 }

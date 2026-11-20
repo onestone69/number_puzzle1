@@ -16,5 +16,13 @@
   "completion_best_moves": "Best Moves: {count}",
   "completion_best_time": "Best Time: {time}",
   "completion_restart": "Restart",
-  "completion_ok": "OK"
+  "completion_ok": "OK",
+  "settings_title": "Settings",
+  "settings_sound": "Sound Effects",
+  "settings_volume": "Volume",
+  "settings_haptics": "Haptics",
+  "settings_close": "Close",
+  "settings_tooltip": "Settings",
+  "menu_back": "Back",
+  "menu_restart": "Restart"
 }

@@ -1,5 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
+import '../feedback_service.dart';
+
 /// 색을 [amount]만큼 밝게(양수) 또는 어둡게(음수) 만든다.
 Color shadeColor(Color color, double amount) {
   return amount >= 0
@@ -164,7 +166,10 @@ class _Pressable3DState extends State<Pressable3D> {
         onTapDown: (_) => _setPressed(true),
         onTapUp: (_) => _setPressed(false),
         onTapCancel: () => _setPressed(false),
-        onTap: widget.onPressed,
+        onTap: () {
+          FeedbackService.instance.tap();
+          widget.onPressed();
+        },
         child: SizedBox(
           width: widget.width,
           height: widget.height,
