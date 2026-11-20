@@ -59,4 +59,23 @@ void main() {
       isNotNull,
     );
   });
+
+  test('힌트 사용 횟수도 저장되고, 예전 저장값은 0으로 읽음', () async {
+    await GameSaveStore.save(
+      'puzzle_8',
+      const SavedGame(
+        tiles: [1, 2, 3, 4, 5, 6, 7, 0, 8],
+        moves: 3,
+        seconds: 9,
+        hints: 4,
+      ),
+    );
+    expect((await GameSaveStore.load('puzzle_8', 9))!.hints, 4);
+
+    final legacy = SavedGame.tryParse(
+      '{"tiles":[1,2,3,4,5,6,7,0,8],"moves":5,"seconds":9}',
+      9,
+    );
+    expect(legacy!.hints, 0);
+  });
 }

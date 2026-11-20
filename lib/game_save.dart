@@ -8,6 +8,7 @@ class SavedGame {
     required this.tiles,
     required this.moves,
     required this.seconds,
+    this.hints = 0,
   });
 
   /// 칸 순서대로의 숫자 (0은 빈칸)
@@ -15,10 +16,14 @@ class SavedGame {
   final int moves;
   final int seconds;
 
+  /// 이 게임에서 사용한 힌트 횟수
+  final int hints;
+
   Map<String, Object> toJson() => {
     'tiles': tiles,
     'moves': moves,
     'seconds': seconds,
+    'hints': hints,
   };
 
   /// 저장된 값이 손상되었거나 [tileCount]와 맞지 않으면 null.
@@ -29,16 +34,22 @@ class SavedGame {
       final tiles = (json['tiles'] as List).cast<int>();
       final moves = json['moves'] as int;
       final seconds = json['seconds'] as int;
+      final hints = json['hints'] as int? ?? 0; // 예전 저장값에는 없음
       // 0~(tileCount-1)이 한 번씩 들어 있어야 함
       final isPermutation =
           tiles.length == tileCount &&
           (tiles.toSet()..removeAll(List.generate(tileCount, (i) => i)))
               .isEmpty &&
           tiles.toSet().length == tileCount;
-      if (!isPermutation || moves < 0 || seconds < 0) return null;
+      if (!isPermutation || moves < 0 || seconds < 0 || hints < 0) return null;
       // 이미 완성된 배치는 이어할 필요 없음
       if (isSolved(tiles)) return null;
-      return SavedGame(tiles: tiles, moves: moves, seconds: seconds);
+      return SavedGame(
+        tiles: tiles,
+        moves: moves,
+        seconds: seconds,
+        hints: hints,
+      );
     } catch (_) {
       return null;
     }

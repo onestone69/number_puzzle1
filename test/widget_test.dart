@@ -174,6 +174,9 @@ void main() {
     final semantics = tester.ensureSemantics();
     await tester.tap(find.byTooltip('Hint'));
     await waitFor(find.bySemanticsLabel(RegExp('^hint')));
+    // 같은 힌트를 다시 눌러도 횟수는 늘지 않음
+    await tester.tap(find.byTooltip('Hint'));
+    await tester.pump();
     expect(
       find.descendant(
         of: find.bySemanticsLabel(RegExp('^hint')),
@@ -190,6 +193,7 @@ void main() {
     expect(find.text('New Record!'), findsOneWidget);
     expect(find.text('#1 in Top 5'), findsOneWidget);
     expect(find.text('NEW'), findsNWidgets(2)); // 이동·시간 모두 신기록
+    expect(find.text('Hints used: 1'), findsOneWidget);
     expect(find.text('6'), findsWidgets); // 이번 이동 횟수
     expect(tester.takeException(), isNull);
     // 완성했으므로 이어하기 저장은 지워짐

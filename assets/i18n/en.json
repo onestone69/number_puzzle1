@@ -46,5 +46,7 @@
   "completion_close": "Close",
   "completion_play_again": "Play Again",
   "completion_records": "Records",
-  "menu_hint": "Hint"
+  "menu_hint": "Hint",
+  "completion_hints": "Hints used: {count}",
+  "completion_no_hints": "Solved without hints!"
 }

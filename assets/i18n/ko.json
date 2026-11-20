@@ -46,5 +46,7 @@
   "completion_close": "닫기",
   "completion_play_again": "다시 하기",
   "completion_records": "기록 보기",
-  "menu_hint": "힌트"
+  "menu_hint": "힌트",
+  "completion_hints": "힌트 사용: {count}번",
+  "completion_no_hints": "힌트 없이 완성!"
 }

@@ -56,6 +56,7 @@ class _Number24ScreenState extends State<Number24Screen>
   List<int> _hintPath = []; // 완성까지 눌러야 할 칸 순서 (풀이)
   int? _hintIndex; // 지금 강조 중인 힌트 타일의 칸 번호
   bool _hintLoading = false;
+  int hintsUsed = 0; // 이 게임에서 사용한 힌트 횟수
 
   // SharedPreferences 키
   static const String puzzleType = Number24Screen.puzzleType;
@@ -123,6 +124,7 @@ class _Number24ScreenState extends State<Number24Screen>
     emptyIndex = tiles.indexOf(0);
     moveCount = saved.moves;
     elapsedSeconds = saved.seconds;
+    hintsUsed = saved.hints;
     isCompleted = false;
     startTimer();
   }
@@ -136,6 +138,7 @@ class _Number24ScreenState extends State<Number24Screen>
         tiles: List.of(tiles),
         moves: moveCount,
         seconds: elapsedSeconds,
+        hints: hintsUsed,
       ),
     );
   }
@@ -161,6 +164,7 @@ class _Number24ScreenState extends State<Number24Screen>
       tiles = List.generate(25, (index) => index == 24 ? 0 : index + 1);
       emptyIndex = 24;
       moveCount = 0;
+      hintsUsed = 0;
       elapsedSeconds = 0;
       isCompleted = false;
     });
@@ -182,6 +186,7 @@ class _Number24ScreenState extends State<Number24Screen>
       tiles = List.generate(25, (index) => index == 24 ? 0 : index + 1);
       emptyIndex = 24;
       moveCount = 0;
+      hintsUsed = 0;
       elapsedSeconds = 0;
       isCompleted = false;
     });
@@ -265,6 +270,7 @@ class _Number24ScreenState extends State<Number24Screen>
           moves: moveCount,
           seconds: elapsedSeconds,
           result: result,
+          hintsUsed: hintsUsed,
         );
         if (!mounted) return;
         switch (action) {
@@ -298,7 +304,11 @@ class _Number24ScreenState extends State<Number24Screen>
       if (!listEquals(snapshot, tiles) || path == null || path.isEmpty) return;
       _hintPath = path;
     }
-    setState(() => _hintIndex = _hintPath.first);
+    setState(() {
+      // 같은 힌트를 다시 누른 것은 세지 않음
+      if (_hintIndex == null) hintsUsed++;
+      _hintIndex = _hintPath.first;
+    });
   }
 
   // 설정 창 열기 (열려 있는 동안 타이머 정지)

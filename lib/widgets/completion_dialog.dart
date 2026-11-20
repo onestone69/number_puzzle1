@@ -25,6 +25,7 @@ Future<CompletionAction> showCompletionDialog(
   required int moves,
   required int seconds,
   required RecordResult result,
+  int hintsUsed = 0,
 }) async {
   final action = await showGeneralDialog<CompletionAction>(
     context: context,
@@ -37,6 +38,7 @@ Future<CompletionAction> showCompletionDialog(
           moves: moves,
           seconds: seconds,
           result: result,
+          hintsUsed: hintsUsed,
         ),
     // 통통 튀며 나타남
     transitionBuilder:
@@ -59,12 +61,14 @@ class _CompletionView extends StatefulWidget {
     required this.moves,
     required this.seconds,
     required this.result,
+    required this.hintsUsed,
   });
 
   final Color color;
   final int moves;
   final int seconds;
   final RecordResult result;
+  final int hintsUsed;
 
   @override
   State<_CompletionView> createState() => _CompletionViewState();
@@ -230,7 +234,15 @@ class _CompletionViewState extends State<_CompletionView>
                             ),
                           ],
                         ),
-                        const SizedBox(height: 22),
+                        const SizedBox(height: 12),
+
+                        // 힌트 사용 횟수 (안 썼으면 칭찬)
+                        _HintsBadge(
+                          hintsUsed: widget.hintsUsed,
+                          color: color,
+                          textColor: textColor,
+                        ),
+                        const SizedBox(height: 20),
 
                         // 버튼: 기록 보기 / 닫기 / 다시 하기
                         Row(
@@ -538,4 +550,68 @@ class _ConfettiPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_ConfettiPainter old) => old.progress != progress;
+}
+
+/// 힌트 사용 횟수 표시. 힌트 없이 완성하면 칭찬 배지.
+class _HintsBadge extends StatelessWidget {
+  const _HintsBadge({
+    required this.hintsUsed,
+    required this.color,
+    required this.textColor,
+  });
+
+  final int hintsUsed;
+  final Color color;
+  final Color textColor;
+
+  static const _bulb = Color(0xFFF2B33D);
+
+  @override
+  Widget build(BuildContext context) {
+    final noHints = hintsUsed == 0;
+    final text =
+        noHints
+            ? 'completion_no_hints'.tr()
+            : 'completion_hints'.tr(namedArgs: {'count': '$hintsUsed'});
+    final label = Text(
+      text,
+      textAlign: TextAlign.center,
+      style: TextStyle(
+        fontFamily: 'HiMelody',
+        fontSize: 21,
+        fontWeight: FontWeight.bold,
+        color: noHints ? Colors.white : textColor,
+        decoration: TextDecoration.none,
+        shadows:
+            noHints
+                ? [
+                  Shadow(
+                    color: shadeColor(_bulb, -0.5),
+                    offset: const Offset(0, 1.5),
+                    blurRadius: 1.5,
+                  ),
+                ]
+                : null,
+      ),
+    );
+    final content = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            noHints ? Icons.auto_awesome : Icons.lightbulb,
+            size: 22,
+            color: noHints ? Colors.white : _bulb,
+          ),
+          const SizedBox(width: 6),
+          Flexible(child: label),
+        ],
+      ),
+    );
+    // 힌트 없이 완성: 볼록한 금색 배지 / 힌트 사용: 움푹 파인 칸
+    return noHints
+        ? Raised3D(color: _bulb, radius: 18, depth: 4, child: content)
+        : Inset3D(color: shadeColor(color, 0.72), radius: 18, child: content);
+  }
 }
