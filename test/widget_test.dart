@@ -169,6 +169,20 @@ void main() {
       ),
     );
     await tester.pump();
+
+    // 힌트: 한 수 남은 판에서 힌트를 누르면 마지막 타일(8)이 강조됨
+    final semantics = tester.ensureSemantics();
+    await tester.tap(find.byTooltip('Hint'));
+    await waitFor(find.bySemanticsLabel(RegExp('^hint')));
+    expect(
+      find.descendant(
+        of: find.bySemanticsLabel(RegExp('^hint')),
+        matching: find.text('8'),
+      ),
+      findsOneWidget,
+    );
+    semantics.dispose();
+
     await tester.tap(find.text('8'));
     await waitFor(find.text('Puzzle Completed!'));
     await tester.pumpAndSettle();

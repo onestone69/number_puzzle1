@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:number_puzzle1/ad_banner_widget.dart';
@@ -8,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../app_color.dart';
 import '../feedback_service.dart';
 import '../game_save.dart';
+import '../puzzle_solver.dart';
 import '../records_store.dart';
 import 'records_screen.dart';
 import '../widgets/completion_dialog.dart';
@@ -49,6 +51,11 @@ class _Number15ScreenState extends State<Number15Screen>
   bool isCompleted = false;
   bool isPaused = false; // 설정 창이 열려 있는 동안 타이머 정지
   bool _inBackground = false; // 앱이 백그라운드에 있는 동안 타이머 정지
+
+  // 힌트
+  List<int> _hintPath = []; // 완성까지 눌러야 할 칸 순서 (풀이)
+  int? _hintIndex; // 지금 강조 중인 힌트 타일의 칸 번호
+  bool _hintLoading = false;
 
   // SharedPreferences 키
   static const String puzzleType = Number15Screen.puzzleType;
@@ -164,6 +171,8 @@ class _Number15ScreenState extends State<Number15Screen>
 
   // 퍼즐 초기화 및 섞기
   void resetPuzzle() {
+    _hintPath = [];
+    _hintIndex = null;
     GameSaveStore.clear(puzzleType); // 새 게임이므로 이어하기 삭제
     if (timer.isActive) {
       timer.cancel();
@@ -212,6 +221,15 @@ class _Number15ScreenState extends State<Number15Screen>
   // 타일과 빈 공간의 위치 교환
   void swapTiles(int tileIndex, {bool checkComplete = true}) {
     if (isCompleted && checkComplete) return;
+
+    if (checkComplete) {
+      if (_hintPath.isNotEmpty && _hintPath.first == tileIndex) {
+        _hintPath.removeAt(0); // 힌트대로 둠 → 다음 힌트는 바로 이어서
+      } else {
+        _hintPath = []; // 다른 수를 둠 → 다음 힌트 때 다시 계산
+      }
+      _hintIndex = null;
+    }
 
     setState(() {
       final temp = tiles[tileIndex];
@@ -269,6 +287,23 @@ class _Number15ScreenState extends State<Number15Screen>
         }
       });
     }
+  }
+
+  // 힌트: 다음에 움직일 타일을 강조
+  Future<void> showHint() async {
+    if (isCompleted || _hintLoading) return;
+    if (_hintPath.isEmpty) {
+      setState(() => _hintLoading = true);
+      final snapshot = List.of(tiles);
+      // 풀이 계산은 화면이 멈추지 않도록 별도 isolate에서
+      final path = await compute(solveForHint, [...snapshot, 4]);
+      if (!mounted) return;
+      setState(() => _hintLoading = false);
+      // 계산하는 동안 판이 바뀌었으면 무시
+      if (!listEquals(snapshot, tiles) || path == null || path.isEmpty) return;
+      _hintPath = path;
+    }
+    setState(() => _hintIndex = _hintPath.first);
   }
 
   // 설정 창 열기 (열려 있는 동안 타이머 정지)
@@ -337,6 +372,7 @@ class _Number15ScreenState extends State<Number15Screen>
                               frameColor: AppColor.puzzle15MenuBackground,
                               // 완성된 상태에서는 타일 이동 불가
                               enabled: !isCompleted,
+                              hintIndex: _hintIndex,
                               onTileTap: (index) {
                                 // 빈 공간 주변의 타일만 이동 가능
                                 if (getValidMoves().contains(index)) {
@@ -378,6 +414,12 @@ class _Number15ScreenState extends State<Number15Screen>
                     tooltip: 'menu_restart'.tr(),
                     color: shadeColor(AppColor.puzzle15MenuBackground, 0.12),
                     onPressed: resetPuzzle,
+                  ),
+                  Button3D(
+                    icon: _hintLoading ? Icons.hourglass_top : Icons.lightbulb,
+                    tooltip: 'menu_hint'.tr(),
+                    color: shadeColor(AppColor.puzzle15MenuBackground, 0.12),
+                    onPressed: showHint,
                   ),
                   Button3D(
                     icon: Icons.settings,

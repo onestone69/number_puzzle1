@@ -45,5 +45,6 @@
   "completion_new": "NEW",
   "completion_close": "닫기",
   "completion_play_again": "다시 하기",
-  "completion_records": "기록 보기"
+  "completion_records": "기록 보기",
+  "menu_hint": "힌트"
 }

@@ -207,7 +207,7 @@ class Button3D extends StatelessWidget {
     final button = Pressable3D(
       color: color,
       onPressed: onPressed,
-      width: 72,
+      width: 64, // 하단 메뉴에 4개가 들어가도록
       height: 54,
       semanticLabel: tooltip,
       child: Icon(

@@ -45,5 +45,6 @@
   "completion_new": "NEW",
   "completion_close": "Close",
   "completion_play_again": "Play Again",
-  "completion_records": "Records"
+  "completion_records": "Records",
+  "menu_hint": "Hint"
 }

@@ -17,6 +17,7 @@ class PuzzleBoard3D extends StatelessWidget {
     required this.frameColor,
     required this.onTileTap,
     this.enabled = true,
+    this.hintIndex,
   });
 
   final List<int> tiles;
@@ -29,6 +30,9 @@ class PuzzleBoard3D extends StatelessWidget {
 
   /// 타일을 탭했을 때 그 타일의 칸 번호(index)를 전달한다.
   final ValueChanged<int> onTileTap;
+
+  /// 힌트로 강조할 타일의 칸 번호 (없으면 null)
+  final int? hintIndex;
 
   @override
   Widget build(BuildContext context) {
@@ -124,13 +128,30 @@ class PuzzleBoard3D extends StatelessWidget {
                       top: cellOffset(index).dy,
                       width: cell,
                       height: cell,
-                      child: _Tile3D(
-                        value: value,
-                        color: tileColor,
-                        textColor: textColor,
+                      child: _HintPulse(
+                        key: ValueKey('hint-$value'),
+                        // 힌트 타일이면 빈칸 방향으로 살짝 들썩이며 빛남
+                        direction:
+                            index == hintIndex
+                                ? Offset(
+                                  ((positionOf[0]! % gridSize) -
+                                          (index % gridSize))
+                                      .toDouble(),
+                                  ((positionOf[0]! ~/ gridSize) -
+                                          (index ~/ gridSize))
+                                      .toDouble(),
+                                )
+                                : null,
+                        distance: cell * 0.06,
                         radius: radius,
-                        enabled: enabled,
-                        onTap: () => onTileTap(index),
+                        child: _Tile3D(
+                          value: value,
+                          color: tileColor,
+                          textColor: textColor,
+                          radius: radius,
+                          enabled: enabled,
+                          onTap: () => onTileTap(index),
+                        ),
                       ),
                     ),
               ],
@@ -218,6 +239,114 @@ class _Tile3DState extends State<_Tile3D> {
           ),
         );
       },
+    );
+  }
+}
+
+/// 힌트 강조: [direction]이 있으면 그 방향(빈칸 쪽)으로 들썩이며 빛난다.
+class _HintPulse extends StatefulWidget {
+  const _HintPulse({
+    super.key,
+    required this.direction,
+    required this.distance,
+    required this.radius,
+    required this.child,
+  });
+
+  final Offset? direction;
+  final double distance;
+  final double radius;
+  final Widget child;
+
+  @override
+  State<_HintPulse> createState() => _HintPulseState();
+}
+
+class _HintPulseState extends State<_HintPulse>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 650),
+  );
+
+  static const _glow = Color(0xFFFFD54F);
+
+  @override
+  void initState() {
+    super.initState();
+    _sync();
+  }
+
+  @override
+  void didUpdateWidget(_HintPulse old) {
+    super.didUpdateWidget(old);
+    _sync();
+  }
+
+  void _sync() {
+    if (widget.direction != null) {
+      if (!_controller.isAnimating) _controller.repeat(reverse: true);
+    } else if (_controller.isAnimating || _controller.value != 0) {
+      _controller.stop();
+      _controller.value = 0;
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final direction = widget.direction;
+    if (direction == null) return widget.child;
+    return Semantics(
+      label: 'hint',
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) {
+          final t = Curves.easeInOut.transform(_controller.value);
+          return Transform.translate(
+            offset: direction * widget.distance * t,
+            child: Stack(
+              clipBehavior: Clip.none,
+              fit: StackFit.expand,
+              children: [
+                // 바깥으로 퍼지는 빛 (타일 아래)
+                Positioned.fill(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(widget.radius),
+                      boxShadow: [
+                        BoxShadow(
+                          color: _glow.withValues(alpha: 0.55 + t * 0.35),
+                          blurRadius: 10 + t * 10,
+                          spreadRadius: 1 + t * 3,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                child!,
+                // 빛나는 테두리 (타일 위)
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(widget.radius),
+                        border: Border.all(color: _glow, width: 3 + t * 1.5),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+        child: widget.child,
+      ),
     );
   }
 }
