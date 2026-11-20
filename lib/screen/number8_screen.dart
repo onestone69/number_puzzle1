@@ -6,6 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 import '../app_color.dart';
+import '../widgets/game_ui_3d.dart';
+import '../widgets/puzzle_board_3d.dart';
 
 class Number8Screen extends StatefulWidget {
   const Number8Screen({super.key, this.showAd = true});
@@ -269,51 +271,26 @@ class _Number8ScreenState extends State<Number8Screen> {
         body: Column(
           children: [
             // 타이틀 영역
-            Container(
+            GameHeader3D(
+              title: 'home_puzzle_3'.tr(),
               color: AppColor.puzzle8MenuBackground,
-              height: 80,
-              width: double.infinity,
-              alignment: Alignment.center,
-              padding: EdgeInsets.all(8),
-              child: Text(
-                'home_puzzle_3'.tr(),
-                style: TextStyle(
-                  fontFamily: 'HiMelody',
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
             ),
             // 최고 기록 표시 영역 수정
             SizedBox(height: 10),
-            Container(
-              padding: EdgeInsets.all(8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (bestMoveCount != null && bestTime != null)
-                    Flexible(
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          'puzzle_best_record'.tr(
-                            namedArgs: {
-                              'moves': bestMoveCount.toString(),
-                              'time': formatTime(bestTime!),
-                            },
-                          ),
-                          style: TextStyle(
-                            fontFamily: 'HiMelody',
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: const Color.fromARGB(255, 150, 158, 248),
-                          ),
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child:
+                  bestMoveCount != null && bestTime != null
+                      ? BestRecordBadge3D(
+                        color: AppColor.puzzle8MenuBackground,
+                        text: 'puzzle_best_record'.tr(
+                          namedArgs: {
+                            'moves': bestMoveCount.toString(),
+                            'time': formatTime(bestTime!),
+                          },
                         ),
-                      ),
-                    ),
-                ],
-              ),
+                      )
+                      : const SizedBox.shrink(),
             ),
 
             // 메인 콘텐츠 영역
@@ -329,65 +306,20 @@ class _Number8ScreenState extends State<Number8Screen> {
                         constraints: BoxConstraints(maxWidth: 400),
                         child: AspectRatio(
                           aspectRatio: 1,
-                          child: GridView.builder(
-                            physics: NeverScrollableScrollPhysics(),
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 3, // 3열 그리드
-                                  crossAxisSpacing: 8, // 가로 간격
-                                  mainAxisSpacing: 8, // 세로 간격
-                                ),
-                            itemCount: 9, // 9개 공간
-                            itemBuilder: (context, index) {
-                              // 현재 위치의 타일 값
-                              final tileValue = tiles[index];
-
-                              // 빈 공간인 경우 (값이 0)
-                              if (tileValue == 0) {
-                                return Container(
-                                  decoration: BoxDecoration(
-                                    color: AppColor.puzzle8Empty,
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                );
+                          child: PuzzleBoard3D(
+                            tiles: tiles,
+                            gridSize: 3,
+                            tileColor: AppColor.puzzle8Tile,
+                            textColor: AppColor.puzzle8Text,
+                            emptyColor: AppColor.puzzle8Empty,
+                            frameColor: AppColor.puzzle8MenuBackground,
+                            // 완성된 상태에서는 타일 이동 불가
+                            enabled: !isCompleted,
+                            onTileTap: (index) {
+                              // 빈 공간 주변의 타일만 이동 가능
+                              if (getValidMoves().contains(index)) {
+                                swapTiles(index);
                               }
-
-                              // 숫자 타일
-                              return ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColor.puzzle8Tile,
-                                  foregroundColor: AppColor.puzzle8Text,
-                                  padding: EdgeInsets.zero,
-                                  elevation: 4,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                  // 완성된 상태에서는 버튼 비활성화
-                                  disabledBackgroundColor: AppColor.tile2
-                                      .withValues(alpha: 0.7),
-                                ),
-                                onPressed:
-                                    isCompleted
-                                        ? null
-                                        : () {
-                                          // 빈 공간 주변의 타일만 이동 가능
-                                          if (getValidMoves().contains(index)) {
-                                            swapTiles(index);
-                                          }
-                                        },
-                                child: FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Text(
-                                    '$tileValue',
-                                    style: TextStyle(
-                                      fontFamily: 'HiMelody',
-                                      color: AppColor.puzzle8Text,
-                                      fontSize: 48,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              );
                             },
                           ),
                         ),
@@ -395,142 +327,35 @@ class _Number8ScreenState extends State<Number8Screen> {
                     ),
                     SizedBox(height: 20),
                     // 이동 횟수와 시간 표시 영역
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // 좁은 화면에서는 축소해서 표시
-                        Flexible(
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 12,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColor.puzzle8Tile.withValues(
-                                  alpha: 0.9,
-                                ),
-                                borderRadius: BorderRadius.circular(25),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black12,
-                                    blurRadius: 6,
-                                    offset: Offset(0, 3),
-                                  ),
-                                ],
-                                border: Border.all(
-                                  color: Colors.white.withValues(alpha: 0.3),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  SizedBox(width: 10),
-                                  Container(
-                                    padding: EdgeInsets.all(8),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withValues(
-                                        alpha: 0.2,
-                                      ),
-                                      borderRadius: BorderRadius.circular(15),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Icon(
-                                          Icons.swap_horiz,
-                                          size: 20,
-                                          color: AppColor.puzzle8Text,
-                                        ),
-                                        SizedBox(width: 8),
-                                        Text(
-                                          '$moveCount',
-                                          style: TextStyle(
-                                            fontFamily: 'HiMelody',
-                                            fontSize: 24,
-                                            fontWeight: FontWeight.bold,
-                                            color: AppColor.puzzle8Text,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  SizedBox(width: 30),
-                                  Container(
-                                    padding: EdgeInsets.all(8),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withValues(
-                                        alpha: 0.2,
-                                      ),
-                                      borderRadius: BorderRadius.circular(15),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Icon(
-                                          Icons.timer,
-                                          size: 20,
-                                          color: AppColor.puzzle8Text,
-                                        ),
-                                        SizedBox(width: 12),
-                                        Text(
-                                          formatTime(elapsedSeconds),
-                                          style: TextStyle(
-                                            fontFamily: 'HiMelody',
-                                            fontSize: 24,
-                                            fontWeight: FontWeight.bold,
-                                            color: AppColor.puzzle8Text,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  SizedBox(width: 10),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+                    StatsPanel3D(
+                      moves: moveCount,
+                      time: formatTime(elapsedSeconds),
+                      color: AppColor.puzzle8Tile,
+                      textColor: AppColor.puzzle8Text,
                     ),
+                    const SizedBox(height: 12),
                   ],
                 ),
               ),
             ),
 
             // 하단 메뉴 영역
-            Container(
-              padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColor.puzzle8MenuBackground,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 4,
-                    offset: Offset(0, -2),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.arrow_back),
-                    color: Colors.white,
-                    onPressed: () {
-                      // 홈 버튼 동작
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.refresh),
-                    color: Colors.white,
-                    onPressed: () {
-                      resetPuzzle(); // setState() 호출이 resetPuzzle 안에 포함되어 있으므로 여기서는 제거
-                    },
-                  ),
-                ],
-              ),
+            GameMenuBar3D(
+              color: AppColor.puzzle8MenuBackground,
+              children: [
+                Button3D(
+                  icon: Icons.arrow_back,
+                  tooltip: 'Back',
+                  color: shadeColor(AppColor.puzzle8MenuBackground, 0.12),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+                Button3D(
+                  icon: Icons.refresh,
+                  tooltip: 'Restart',
+                  color: shadeColor(AppColor.puzzle8MenuBackground, 0.12),
+                  onPressed: resetPuzzle,
+                ),
+              ],
             ),
 
             // AdMob 배너 영역을 위젯으로 교체

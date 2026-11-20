@@ -99,6 +99,18 @@ void main() {
       }
     }
 
+    // 타일 탭으로 실제 이동이 되는지 확인 (이동 횟수 0 → 1 이상)
+    tester.view.physicalSize = const Size(412, 915) * 3.0;
+    home.value = Number8Screen(key: UniqueKey(), showAd: false);
+    await tester.pump();
+    await waitFor(find.textContaining('Best Record'));
+    expect(find.text('0'), findsOneWidget);
+    for (var i = 1; i <= 8; i++) {
+      await tester.tap(find.text('$i').first, warnIfMissed: false);
+      await tester.pump(const Duration(milliseconds: 200));
+    }
+    expect(find.text('0'), findsNothing, reason: '타일을 탭해도 이동하지 않음');
+
     // 화면을 떠나며 타이머 정리
     home.value = const SizedBox();
     await tester.pump();

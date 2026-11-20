@@ -6,6 +6,8 @@ import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../app_color.dart';
+import '../widgets/game_ui_3d.dart';
+import '../widgets/puzzle_board_3d.dart';
 
 class Number24Screen extends StatefulWidget {
   const Number24Screen({super.key, this.showAd = true});
@@ -258,50 +260,25 @@ class _Number24ScreenState extends State<Number24Screen> {
         backgroundColor: AppColor.puzzle24Background,
         body: Column(
           children: [
-            Container(
+            GameHeader3D(
+              title: 'home_puzzle_5'.tr(),
               color: AppColor.puzzle24MenuBackground,
-              height: 80,
-              width: double.infinity,
-              alignment: Alignment.center,
-              padding: EdgeInsets.all(8),
-              child: Text(
-                'home_puzzle_5'.tr(),
-                style: TextStyle(
-                  fontFamily: 'HiMelody',
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
             ),
             SizedBox(height: 10),
-            Container(
-              padding: EdgeInsets.all(8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (bestMoveCount != null && bestTime != null)
-                    Flexible(
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          'puzzle_best_record'.tr(
-                            namedArgs: {
-                              'moves': bestMoveCount.toString(),
-                              'time': formatTime(bestTime!),
-                            },
-                          ),
-                          style: TextStyle(
-                            fontFamily: 'HiMelody',
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: const Color.fromARGB(255, 150, 158, 248),
-                          ),
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child:
+                  bestMoveCount != null && bestTime != null
+                      ? BestRecordBadge3D(
+                        color: AppColor.puzzle24MenuBackground,
+                        text: 'puzzle_best_record'.tr(
+                          namedArgs: {
+                            'moves': bestMoveCount.toString(),
+                            'time': formatTime(bestTime!),
+                          },
                         ),
-                      ),
-                    ),
-                ],
-              ),
+                      )
+                      : const SizedBox.shrink(),
             ),
 
             Expanded(
@@ -316,200 +293,55 @@ class _Number24ScreenState extends State<Number24Screen> {
                         constraints: BoxConstraints(maxWidth: 400),
                         child: AspectRatio(
                           aspectRatio: 1,
-                          child: GridView.builder(
-                            physics: NeverScrollableScrollPhysics(),
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 5,
-                                  crossAxisSpacing: 8,
-                                  mainAxisSpacing: 8,
-                                ),
-                            itemCount: 25,
-                            itemBuilder: (context, index) {
-                              final tileValue = tiles[index];
-
-                              if (tileValue == 0) {
-                                return Container(
-                                  decoration: BoxDecoration(
-                                    color: AppColor.puzzle24Empty,
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                );
+                          child: PuzzleBoard3D(
+                            tiles: tiles,
+                            gridSize: 5,
+                            tileColor: AppColor.puzzle24Tile,
+                            textColor: AppColor.puzzle24Text,
+                            emptyColor: AppColor.puzzle24Empty,
+                            frameColor: AppColor.puzzle24MenuBackground,
+                            // 완성된 상태에서는 타일 이동 불가
+                            enabled: !isCompleted,
+                            onTileTap: (index) {
+                              // 빈 공간 주변의 타일만 이동 가능
+                              if (getValidMoves().contains(index)) {
+                                swapTiles(index);
                               }
-
-                              return ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColor.puzzle24Tile,
-                                  foregroundColor: AppColor.puzzle24Text,
-                                  padding: EdgeInsets.zero,
-                                  elevation: 4,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                  disabledBackgroundColor: AppColor.tile2
-                                      .withValues(alpha: 0.7),
-                                ),
-                                onPressed:
-                                    isCompleted
-                                        ? null
-                                        : () {
-                                          if (getValidMoves().contains(index)) {
-                                            swapTiles(index);
-                                          }
-                                        },
-                                child: FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Text(
-                                    '$tileValue',
-                                    style: TextStyle(
-                                      fontFamily: 'HiMelody',
-                                      color: AppColor.puzzle24Text,
-                                      fontSize: 28,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              );
                             },
                           ),
                         ),
                       ),
                     ),
                     SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // 좁은 화면에서는 축소해서 표시
-                        Flexible(
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 12,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColor.puzzle24Tile.withValues(
-                                  alpha: 0.9,
-                                ),
-                                borderRadius: BorderRadius.circular(25),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black12,
-                                    blurRadius: 6,
-                                    offset: Offset(0, 3),
-                                  ),
-                                ],
-                                border: Border.all(
-                                  color: Colors.white.withValues(alpha: 0.3),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  SizedBox(width: 10),
-                                  Container(
-                                    padding: EdgeInsets.all(8),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withValues(
-                                        alpha: 0.2,
-                                      ),
-                                      borderRadius: BorderRadius.circular(15),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Icon(
-                                          Icons.swap_horiz,
-                                          size: 20,
-                                          color: AppColor.puzzle24Text,
-                                        ),
-                                        SizedBox(width: 8),
-                                        Text(
-                                          '$moveCount',
-                                          style: TextStyle(
-                                            fontFamily: 'HiMelody',
-                                            fontSize: 24,
-                                            fontWeight: FontWeight.bold,
-                                            color: AppColor.puzzle24Text,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  SizedBox(width: 30),
-                                  Container(
-                                    padding: EdgeInsets.all(8),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withValues(
-                                        alpha: 0.2,
-                                      ),
-                                      borderRadius: BorderRadius.circular(15),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Icon(
-                                          Icons.timer,
-                                          size: 20,
-                                          color: AppColor.puzzle24Text,
-                                        ),
-                                        SizedBox(width: 12),
-                                        Text(
-                                          formatTime(elapsedSeconds),
-                                          style: TextStyle(
-                                            fontFamily: 'HiMelody',
-                                            fontSize: 24,
-                                            fontWeight: FontWeight.bold,
-                                            color: AppColor.puzzle24Text,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  SizedBox(width: 10),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+                    // 이동 횟수와 시간 표시 영역
+                    StatsPanel3D(
+                      moves: moveCount,
+                      time: formatTime(elapsedSeconds),
+                      color: AppColor.puzzle24Tile,
+                      textColor: AppColor.puzzle24Text,
                     ),
+                    const SizedBox(height: 12),
                   ],
                 ),
               ),
             ),
 
-            Container(
-              padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColor.puzzle24MenuBackground,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 4,
-                    offset: Offset(0, -2),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.arrow_back),
-                    color: Colors.white,
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.refresh),
-                    color: Colors.white,
-                    onPressed: () {
-                      resetPuzzle();
-                    },
-                  ),
-                ],
-              ),
+            GameMenuBar3D(
+              color: AppColor.puzzle24MenuBackground,
+              children: [
+                Button3D(
+                  icon: Icons.arrow_back,
+                  tooltip: 'Back',
+                  color: shadeColor(AppColor.puzzle24MenuBackground, 0.12),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+                Button3D(
+                  icon: Icons.refresh,
+                  tooltip: 'Restart',
+                  color: shadeColor(AppColor.puzzle24MenuBackground, 0.12),
+                  onPressed: resetPuzzle,
+                ),
+              ],
             ),
 
             if (widget.showAd) const AdBannerWidget(),
