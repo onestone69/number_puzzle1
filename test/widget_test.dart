@@ -186,7 +186,45 @@ void main() {
     );
     semantics.dispose();
 
-    await tester.tap(find.text('8'));
+    // 드래그하는 동안 타일이 손가락을 따라 움직이고, 되돌려 놓으면 제자리
+    // (힌트가 떠 있어 이 타일이 몇 px씩 들썩이므로 오차를 둠)
+    final start = tester.getCenter(find.text('8'));
+    final gesture = await tester.startGesture(start);
+    await gesture.moveBy(const Offset(-30, 0));
+    await tester.pump();
+    await gesture.moveBy(const Offset(-20, 0));
+    await tester.pump();
+    expect(tester.getCenter(find.text('8')).dx, lessThan(start.dx - 20));
+    await gesture.moveBy(const Offset(50, 0));
+    await tester.pump();
+    await gesture.up();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.text('Puzzle Completed!'), findsNothing);
+    expect(
+      tester.getCenter(find.text('8')).dx,
+      moreOrLessEquals(start.dx, epsilon: 8),
+    );
+
+    // 드래그: 천천히 조금만(한 칸의 30% 미만) 끌다 놓으면 제자리로 돌아감
+    await tester.timedDrag(
+      find.text('8'),
+      const Offset(-28, 0),
+      const Duration(milliseconds: 600),
+    );
+    await tester.pump(
+      const Duration(milliseconds: 400),
+    ); // 힌트 애니메이션이 반복 중이라 settle 불가
+    expect(find.text('Puzzle Completed!'), findsNothing);
+    expect(find.text('5'), findsWidgets); // 이동 횟수 그대로
+    // 빈칸 반대쪽으로 끌면 움직이지 않음
+    await tester.drag(find.text('8'), const Offset(100, 0));
+    await tester.pump(
+      const Duration(milliseconds: 400),
+    ); // 힌트 애니메이션이 반복 중이라 settle 불가
+    expect(find.text('Puzzle Completed!'), findsNothing);
+
+    // 빈칸(왼쪽) 쪽으로 충분히 끌면 이동 → 완성
+    await tester.drag(find.text('8'), const Offset(-100, 0));
     await waitFor(find.text('Puzzle Completed!'));
     await tester.pumpAndSettle();
     expect(find.text('Puzzle Completed!'), findsOneWidget);
@@ -209,6 +247,50 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Puzzle Completed!'), findsNothing);
     expect(find.text('0'), findsOneWidget);
+
+    // 줄 단위 밀기(탭): 빈칸과 같은 줄의 7, 8 중 8을 누르면 둘 다 밀려 완성,
+    // 이동 횟수는 밀린 타일 수(2)만큼 늘어남
+    const lineGame = SavedGame(
+      tiles: [1, 2, 3, 4, 5, 6, 0, 7, 8],
+      moves: 10,
+      seconds: 5,
+    );
+    home.value = Number8Screen(
+      key: UniqueKey(),
+      showAd: false,
+      savedGame: lineGame,
+    );
+    await tester.pump();
+    await tester.tap(find.text('8'));
+    await waitFor(find.text('Puzzle Completed!'));
+    await tester.pumpAndSettle();
+    expect(find.text('Puzzle Completed!'), findsOneWidget);
+    expect(find.text('12'), findsWidgets);
+    await tester.tap(find.text('Close'));
+    await tester.pumpAndSettle();
+
+    // 줄 단위 밀기(드래그): 8을 끌면 사이의 7도 함께 따라오고, 놓으면 완성
+    home.value = Number8Screen(
+      key: UniqueKey(),
+      showAd: false,
+      savedGame: lineGame,
+    );
+    await tester.pump();
+    final seven = tester.getCenter(find.text('7'));
+    final eight = tester.getCenter(find.text('8'));
+    final lineDrag = await tester.startGesture(eight);
+    await lineDrag.moveBy(const Offset(-30, 0));
+    await tester.pump();
+    await lineDrag.moveBy(const Offset(-30, 0));
+    await tester.pump();
+    expect(tester.getCenter(find.text('8')).dx, lessThan(eight.dx - 40));
+    expect(tester.getCenter(find.text('7')).dx, lessThan(seven.dx - 40));
+    await lineDrag.up();
+    await waitFor(find.text('Puzzle Completed!'));
+    await tester.pumpAndSettle();
+    expect(find.text('Puzzle Completed!'), findsOneWidget);
+    await tester.tap(find.text('Close'));
+    await tester.pumpAndSettle();
 
     // 화면을 떠나며 타이머 정리
     home.value = const SizedBox();

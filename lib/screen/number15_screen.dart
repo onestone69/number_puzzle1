@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../app_color.dart';
 import '../feedback_service.dart';
 import '../game_save.dart';
+import '../puzzle_moves.dart';
 import '../puzzle_solver.dart';
 import '../records_store.dart';
 import 'records_screen.dart';
@@ -384,10 +385,14 @@ class _Number15ScreenState extends State<Number15Screen>
                               enabled: !isCompleted,
                               hintIndex: _hintIndex,
                               onTileTap: (index) {
-                                // 빈 공간 주변의 타일만 이동 가능
-                                if (getValidMoves().contains(index)) {
+                                // 빈칸과 같은 줄의 타일이면 그 사이 타일들까지 한 번에 밀기
+                                // (한 칸씩 옮긴 것과 같으므로 이동 횟수도 밀린 타일 수만큼)
+                                final steps = slideSteps(index, emptyIndex, 4);
+                                if (steps.isNotEmpty) {
                                   FeedbackService.instance.move();
-                                  swapTiles(index);
+                                  for (final step in steps) {
+                                    swapTiles(step);
+                                  }
                                 } else {
                                   FeedbackService.instance.invalid();
                                 }
