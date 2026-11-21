@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:number_puzzle1/ad_ids.dart';
 import 'package:number_puzzle1/ad_policy.dart';
+import 'package:number_puzzle1/consent_manager.dart';
 
 /// 앱 열기 광고 관리.
 ///
@@ -28,15 +29,18 @@ class AppOpenAdManager {
   bool _isShowing = false;
   DateTime? _pausedAt;
 
+  /// 앱 실행 시점 (동의 창 등으로 늦어지면 시작 광고를 건너뛰기 위해)
+  final DateTime _launchedAt = DateTime.now();
+
   bool get _hasValidAd =>
       _ad != null &&
       _loadedAt != null &&
       DateTime.now().difference(_loadedAt!) < _adExpiry;
 
-  /// 앱이 새로 실행되었을 때 호출
+  /// 앱이 새로 실행되고 광고가 허용되었을 때 호출
   void onColdStart() {
     if (!_policy.canShowAppOpen(DateTime.now())) return;
-    final startedAt = DateTime.now();
+    final startedAt = _launchedAt;
     _load(
       onLoaded: () {
         if (DateTime.now().difference(startedAt) <= _coldStartWindow) {
@@ -56,6 +60,7 @@ class AppOpenAdManager {
     final pausedAt = _pausedAt;
     _pausedAt = null;
     if (pausedAt == null || _isShowing) return;
+    if (!ConsentManager.instance.adsAllowed.value) return;
     // 잠깐 다른 앱에 다녀온 경우(광고를 닫고 돌아온 경우 포함)는 무시
     if (DateTime.now().difference(pausedAt) < _minBackground) return;
     if (!_policy.canShowAppOpen(DateTime.now())) return;

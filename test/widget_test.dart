@@ -3,9 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:number_puzzle1/feedback_service.dart';
 import 'package:number_puzzle1/game_save.dart';
-import 'package:number_puzzle1/screen/number15_screen.dart';
-import 'package:number_puzzle1/screen/number24_screen.dart';
-import 'package:number_puzzle1/screen/number8_screen.dart';
+import 'package:number_puzzle1/screen/puzzle_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// 테스트할 세로 화면 크기 (논리 픽셀)
@@ -291,6 +289,31 @@ void main() {
     expect(find.text('Puzzle Completed!'), findsOneWidget);
     await tester.tap(find.text('Close'));
     await tester.pumpAndSettle();
+
+    // 타이머: 새 게임은 첫 이동 전까지 시간이 흐르지 않음
+    home.value = Number8Screen(key: UniqueKey(), showAd: false);
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 3));
+    expect(find.text('00:00'), findsOneWidget);
+
+    // 이어하기도 다시 움직이기 전까지는 저장된 시간에서 멈춰 있고,
+    // 움직이면 그때부터 흐름
+    home.value = Number8Screen(
+      key: UniqueKey(),
+      showAd: false,
+      savedGame: const SavedGame(
+        tiles: [1, 2, 3, 4, 5, 0, 7, 8, 6],
+        moves: 3,
+        seconds: 20,
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 3));
+    expect(find.text('00:20'), findsOneWidget);
+    await tester.tap(find.text('5')); // 빈칸 바로 왼쪽
+    await tester.pump(const Duration(milliseconds: 2500));
+    expect(find.text('00:22'), findsOneWidget);
+    expect(find.text('4'), findsWidgets); // 이동 횟수 3 → 4
 
     // 화면을 떠나며 타이머 정리
     home.value = const SizedBox();

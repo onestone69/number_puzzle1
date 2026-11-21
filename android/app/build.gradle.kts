@@ -41,6 +41,13 @@ android {
             storePassword = keystoreProperties["storePassword"] as String?
         }
     }
+    lint {
+        // Android Lint가 플러그인(webview_flutter_android) 분석 중 내부 오류로 충돌하는
+        // 문제(Lint 자체 버그)를 피하기 위해 릴리스 빌드의 lintVital 검사를 끔.
+        // Flutter 코드는 `flutter analyze`로 따로 검사한다.
+        checkReleaseBuilds = false
+    }
+
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.

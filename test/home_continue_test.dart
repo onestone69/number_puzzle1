@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:number_puzzle1/game_save.dart';
 import 'package:number_puzzle1/screen/home_screen.dart';
-import 'package:number_puzzle1/screen/number8_screen.dart';
+import 'package:number_puzzle1/screen/puzzle_screen.dart';
 import 'package:number_puzzle1/screen/records_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

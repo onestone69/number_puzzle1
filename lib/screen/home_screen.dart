@@ -1,11 +1,10 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:number_puzzle1/app_open_ad_manager.dart';
-import 'package:number_puzzle1/screen/number8_screen.dart';
-import 'package:number_puzzle1/screen/number15_screen.dart';
-import 'package:number_puzzle1/screen/number24_screen.dart';
+import 'package:number_puzzle1/screen/puzzle_screen.dart';
 
 import '../app_color.dart';
+import '../consent_manager.dart';
 import '../game_save.dart';
 import '../widgets/continue_dialog.dart';
 import '../widgets/game_ui_3d.dart';
@@ -21,6 +20,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   final AppOpenAdManager _appOpenAdManager = AppOpenAdManager();
+  VoidCallback? _cancelAdsWait;
 
   static const _background = Color(0xFFF8E8EE); // 파스텔 핑크 배경
   static const _titleColor = Color(0xFF9E7676); // 파스텔 브라운
@@ -370,12 +370,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _loadSaves();
-    // 앱 열기 광고는 노출 규칙(AdPolicy)을 만족할 때만 표시됨
-    _appOpenAdManager.onColdStart();
+    // 앱 열기 광고: 광고 동의·SDK 초기화가 끝난 뒤, 노출 규칙(AdPolicy)을 만족할 때만
+    _cancelAdsWait = ConsentManager.instance.whenAdsAllowed(
+      _appOpenAdManager.onColdStart,
+    );
   }
 
   @override
   void dispose() {
+    _cancelAdsWait?.call();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }

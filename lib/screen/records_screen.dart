@@ -5,50 +5,10 @@ import '../app_color.dart';
 import '../feedback_service.dart';
 import '../records_store.dart';
 import '../widgets/game_ui_3d.dart';
-import 'number15_screen.dart';
-import 'number24_screen.dart';
-import 'number8_screen.dart';
+import 'puzzle_screen.dart';
 
-/// 기록 화면에 보여줄 난이도 정보
-class _Difficulty {
-  const _Difficulty({
-    required this.puzzleType,
-    required this.titleKey,
-    required this.color,
-    required this.tileColor,
-    required this.textColor,
-  });
-
-  final String puzzleType;
-  final String titleKey;
-  final Color color;
-  final Color tileColor;
-  final Color textColor;
-}
-
-const _difficulties = [
-  _Difficulty(
-    puzzleType: Number8Screen.puzzleType,
-    titleKey: 'home_puzzle_3',
-    color: AppColor.puzzle8MenuBackground,
-    tileColor: AppColor.puzzle8Tile,
-    textColor: AppColor.puzzle8Text,
-  ),
-  _Difficulty(
-    puzzleType: Number15Screen.puzzleType,
-    titleKey: 'home_puzzle_4',
-    color: AppColor.puzzle15MenuBackground,
-    tileColor: AppColor.puzzle15Tile,
-    textColor: AppColor.puzzle15Text,
-  ),
-  _Difficulty(
-    puzzleType: Number24Screen.puzzleType,
-    titleKey: 'home_puzzle_5',
-    color: AppColor.puzzle24MenuBackground,
-    tileColor: AppColor.puzzle24Tile,
-    textColor: AppColor.puzzle24Text,
-  ),
-];
+/// 기록 화면에 보여줄 난이도 (게임 화면과 같은 설정을 사용)
+const _difficulties = PuzzleConfig.all;
 
 /// 기록 화면에서 쓰는 금색 (트로피)
 const recordsColor = Color(0xFFE2A93B);
@@ -116,7 +76,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
                     Expanded(
                       child: _DifficultyTab(
                         label: _difficulties[i].titleKey.tr(),
-                        color: _difficulties[i].color,
+                        color: _difficulties[i].menuColor,
                         selected: i == _selected,
                         onTap: () {
                           if (i == _selected) return;
@@ -243,12 +203,12 @@ class _RecordsCard extends StatelessWidget {
     required this.records,
   });
 
-  final _Difficulty difficulty;
+  final PuzzleConfig difficulty;
   final PuzzleRecords? records;
 
   @override
   Widget build(BuildContext context) {
-    final color = difficulty.color;
+    final color = difficulty.menuColor;
     final textColor = shadeColor(color, -0.35);
     final records = this.records;
 

@@ -2,7 +2,7 @@ name: number_puzzle1
 description: "Sliding Number Puzzle"
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.0.0+1
+version: 1.1.0+2
 
 environment:
   sdk: ^3.7.0
@@ -39,10 +39,6 @@ flutter:
 
   uses-material-design: true
   assets:
-    - assets/
-    - assets/icon/
-    - assets/image/
-    - assets/translations/
     - assets/i18n/
     - assets/sounds/
   

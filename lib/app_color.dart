@@ -1,11 +1,6 @@
 import 'dart:ui';
 
 class AppColor {
-  static const Color background = Color(0xFFAEC6CF); // 배경색
-  static const Color tile2 = Color(0xFFB2D8B2); // 배경색
-  static const Color tile3 = Color(0xFFF5F5DC); // 배경색
-  static const Color tile4 = Color(0xFF333333); // 배경색
-
   static const Color puzzle8Empty = Color(0xFFB2D8B2); // 배경색
   static const Color puzzle8Tile = Color(0xFFAEC6CF); // 배경색
   static const Color puzzle8Text = Color(0xFFF5F5DC); // 배경색

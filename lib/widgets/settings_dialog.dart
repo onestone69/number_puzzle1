@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:material_ui/material_ui.dart';
 
+import '../consent_manager.dart';
 import '../feedback_service.dart';
 import 'game_ui_3d.dart';
 
@@ -119,6 +120,24 @@ class SettingsPanel extends StatelessWidget {
                         onChanged: feedback.setHapticsEnabled,
                       ),
                     ),
+                    // 광고 동의가 필요한 지역(EEA·영국 등)에서만: 광고 동의 다시 선택
+                    if (ConsentManager.instance.privacyOptionsRequired) ...[
+                      const SizedBox(height: 12),
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () {
+                          FeedbackService.instance.tap();
+                          ConsentManager.instance.showPrivacyOptions();
+                        },
+                        child: _SettingRow(
+                          icon: Icons.privacy_tip,
+                          label: 'settings_privacy'.tr(),
+                          textColor: textColor,
+                          color: color,
+                          trailing: Icon(Icons.chevron_right, color: textColor),
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 22),
 
                     Center(

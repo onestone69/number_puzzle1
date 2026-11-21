@@ -1,5 +1,8 @@
+import 'dart:math';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:number_puzzle1/puzzle_moves.dart';
+import 'package:number_puzzle1/puzzle_solver.dart';
 
 void main() {
   test('빈칸 바로 옆 타일은 한 칸', () {
@@ -25,5 +28,17 @@ void main() {
     expect(slideSteps(0, 0, 3), isEmpty);
     // 줄이 바뀌는 칸(3x3의 2와 3)은 같은 가로줄이 아님
     expect(slideSteps(3, 2, 3), isEmpty);
+  });
+
+  test('섞은 판은 항상 풀 수 있고, 완성에 가깝지 않음', () {
+    final random = Random(1);
+    for (final n in [3, 4, 5]) {
+      for (var k = 0; k < 200; k++) {
+        final tiles = shuffledBoard(n, random);
+        expect(tiles.toSet().length, n * n);
+        expect(PuzzleSolver(n).isSolvable(tiles), isTrue);
+        expect(manhattanDistance(tiles, n), greaterThanOrEqualTo(n * n + n));
+      }
+    }
   });
 }
